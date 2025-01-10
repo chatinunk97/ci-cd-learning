@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the JAR file to the container
-COPY myprogram.jar /app/myprogram.jar
+COPY target/CICD_Demo-1.0-SNAPSHOT.jar target/CICD_Demo-1.0-SNAPSHOT.jar
 
 # Command to run the JAR
 CMD ["java", "-jar", "myprogram.jar"]
