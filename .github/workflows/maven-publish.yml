@@ -68,10 +68,12 @@ jobs:
         # Use the saved private key to SSH into the instance
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} << 'EOF'
           # Commands to execute on the EC2 instance
-          docker pull your-dockerhub-username/your-image:latest
-          docker stop your-container-name || true
-          docker rm your-container-name || true
-          docker run -d --name your-container-name -p 80:80 your-dockerhub-username/your-image:latest
+            # Log in to Docker Hub using the passed credentials
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ vars.DOCKERHUB_USERNAME }}" --password-stdin
+            docker pull your-dockerhub-username/your-image:latest
+            docker stop your-container-name || true
+            docker rm your-container-name || true
+            docker run -d --name your-container-name -p 80:80 your-dockerhub-username/your-image:latest
         EOF
         
         # Clean up the temporary key file
