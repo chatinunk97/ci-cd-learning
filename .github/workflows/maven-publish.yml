@@ -50,11 +50,31 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: chatinun/learningdevops:initial
+          tags: chatinun/learningdevops:latest
           context: .
+  deploy:
+    runs-on: ubuntu-latest
 
-    # Optional: Uncomment to deploy to GitHub Packages
-    # - name: Publish to GitHub Packages Apache Maven
-    #   run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
-    #   env:
-    #     GITHUB_TOKEN: ${{ github.token }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: SSH into EC2 and Run Commands
+      run: |
+        # Save the private key from the secret to a temporary file
+        echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+        chmod 600 ec2_key.pem
+        
+        # Use the saved private key to SSH into the instance
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} << 'EOF'
+          # Commands to execute on the EC2 instance
+            # Log in to Docker Hub using the passed credentials
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ vars.DOCKERHUB_USERNAME }}" --password-stdin
+            docker pull your-dockerhub-username/your-image:latest
+            docker stop your-container-name || true
+            docker rm your-container-name || true
+            docker run -d --name java-container  -p 80:80 chatinun/learningdevops:latest
+        EOF
+        
+        # Clean up the temporary key file
+        rm -f ec2_key.pem
