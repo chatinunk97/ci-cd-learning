@@ -59,19 +59,20 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Install SSH Agent and Add Key
+    - name: SSH into EC2 and Run Commands
       run: |
-        eval "$(ssh-agent -s)"
+        # Save the private key from the secret to a temporary file
         echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
         chmod 600 ec2_key.pem
-        ssh-add ec2_key.pem
-
-    - name: Pull Docker Image and Run on EC2
-      run: |
-        ssh -i ${{ secrets.EC2_SSH_KEY }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} << 'EOF'
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ vars.DOCKERHUB_USERNAME }}" --password-stdin
+        
+        # Use the saved private key to SSH into the instance
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} << 'EOF'
+          # Commands to execute on the EC2 instance
           docker pull your-dockerhub-username/your-image:latest
           docker stop your-container-name || true
           docker rm your-container-name || true
           docker run -d --name your-container-name -p 80:80 your-dockerhub-username/your-image:latest
         EOF
+        
+        # Clean up the temporary key file
+        rm -f ec2_key.pem
