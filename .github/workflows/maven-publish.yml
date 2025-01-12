@@ -75,7 +75,9 @@ jobs:
               docker stop java-container  || true
               docker container prune -f
               docker rm java-container || true
-              docker run -it --name java-container  -p 80:80 chatinun/learningdevops:latest
+              docker run --name java-container  -p 80:80 chatinun/learningdevops:latest
+              # docker run -it --name java-container  -p 80:80 chatinun/learningdevops:latest
+
           EOF
           
           # Clean up the temporary key file
