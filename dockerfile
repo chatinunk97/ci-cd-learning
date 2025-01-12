@@ -1,5 +1,5 @@
 # Base image with Java 11
-FROM openjdk:11-jdk-slim
+FROM openjdk:11-jdk
 
 # Set working directory
 
