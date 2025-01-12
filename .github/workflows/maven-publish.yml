@@ -73,7 +73,7 @@ jobs:
             docker pull your-dockerhub-username/your-image:latest
             docker stop your-container-name || true
             docker rm your-container-name || true
-            docker run -d --name chatinun/learningdevops  -p 80:80 chatinun/learningdevops:latest
+            docker run -d --name java-container  -p 80:80 chatinun/learningdevops:latest
         EOF
         
         # Clean up the temporary key file
