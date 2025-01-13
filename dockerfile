@@ -6,7 +6,7 @@ FROM openjdk:11-jdk
 
 # Copy the JAR file to the container
 
-# WORKDIR /app
+WORKDIR /app
 
 # Copy the JAR file to the container
 COPY target/CICD_Demo-1.0-SNAPSHOT.jar /CICD_Demo-1.0-SNAPSHOT.jar
