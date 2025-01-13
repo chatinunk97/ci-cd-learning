@@ -70,7 +70,7 @@ jobs:
           tags: chatinun/learningdevops:latest
           build-args: |
             CONTEXT_DIR=${{ github.workspace }}
-          # context: .
+          context: .
   deploy:
     needs: build  # Ensures deploy waits for build to finish
     runs-on: ubuntu-latest
