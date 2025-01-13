@@ -26,7 +26,8 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-
+      - name: Print current working directory(after nvm package)
+        run: pwd
       - name: Verify JAR file exists
         run: ls -l target/
 
