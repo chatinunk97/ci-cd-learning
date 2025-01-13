@@ -41,8 +41,12 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Print current working directory
         run: pwd
+      - name: List files in the working directory
+        run: ls -alh
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
