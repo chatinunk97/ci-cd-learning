@@ -2,14 +2,7 @@
 FROM openjdk:11-jdk
 
 # Set working directory
-
-# Check current context
-ARG CONTEXT_DIR
-RUN echo "Building in context: $CONTEXT_DIR"
-
-# Copy the JAR file to the container
-
-# WORKDIR /app
+WORKDIR /app
 
 # Copy the JAR file to the container
 COPY /target/CICD_Demo-1.0-SNAPSHOT.jar /app/
