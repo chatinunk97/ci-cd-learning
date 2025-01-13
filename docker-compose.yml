@@ -1,0 +1,3 @@
+services:
+  java-app:
+    image: chatinun/learningdevops:latest

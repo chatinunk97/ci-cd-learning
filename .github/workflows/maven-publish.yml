@@ -1,6 +1,3 @@
-# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
-
 name: Maven Package
 
 on:
@@ -11,13 +8,13 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
     steps:
+
     - uses: actions/checkout@v4
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -50,12 +47,32 @@ jobs:
         tags: user/app:latest
         context: .
 
-      # use | to write mutliple lines of actions
-#      run: |
-#        docker login :
-#        docker build ...
 
-    # - name: Publish to GitHub Packages Apache Maven
-    #   run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
-    #   env:
-    #     GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: SSH into EC2 and Run Commands
+        run: |
+          # Save the private key from the secret to a temporary file
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+          # Copy docker-compose to instance
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }}:/home/${{ secrets.EC2_USER }}
+          # Use the saved private key to SSH into the instance
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} << 'EOF'
+            # Commands to execute on the EC2 instance
+              # Log in to Docker Hub using the passed credentials
+              echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ vars.DOCKERHUB_USERNAME }}" --password-stdin
+              docker-compose down
+              docker-compose up
+              # docker pull chatinun/learningdevops:latest
+              # docker stop java-container  || true
+              # docker container prune -f
+              # docker rm java-container || true
+              # docker run --name java-container  -p 80:80 chatinun/learningdevops:latest
+              # docker run -it --name java-container  -p 80:80 chatinun/learningdevops:latest
+
+          EOF
+          
+          # Clean up the temporary key file
+          rm -f ec2_key.pem
