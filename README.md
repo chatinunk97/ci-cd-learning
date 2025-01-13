@@ -6,11 +6,26 @@ There are two things that made my life hard:
 
 Docker looks for files to include in an image within its **building context** (the directory where the Dockerfile is
 located). It will **not look outside** this context.  
-The problem I faced was setting `WORKDIR` to `/app` but then trying to find `/target/<myProgramName>.jar`, which was
+~~The problem I faced was setting `WORKDIR` to `/app` but then trying to find `/target/<myProgramName>.jar`, which was
 built by Maven in the `/target` folder. The Docker build process was looking in the wrong place because of this
-mismatch.
+mismatch.~~
 
-Example structure:
+Went down the wrong road for days. So the building context for `build-push-action` is set to Git context which is the
+repository `https://github.com/<owner>/<repo>.git#<ref>.`
+
+Now the problem that actually happened here is explained in the [build-push-action repository](www.google.com)
+> Git context
+>
+>By default, this action uses the Git context, so you don't need to use the actions/checkout action to check out the
+> repository as this will be done directly by BuildKit.
+
+
+
+> Be careful because any file mutation in the steps that precede the build step will be ignored, including processing of
+> the .dockerignore file since the context is based on the Git reference. However, you can use the Path context using
+> the
+> context input alongside the actions/checkout action to remove this restriction.
+> Example structure:
 
 ```
 └─CICD_Demo (the Path where Maven looks and builds jar in /target)
@@ -26,11 +41,9 @@ Example structure:
     │      └─java
     └─target
         |- [CICD_Demo-1.0-SNAPSHOT.jar](target%2FCICD_Demo-1.0-SNAPSHOT.jar)
-└─app (the WORKDIR I created in the Dockerfile)
-   (--------- THERE'S NO DOCKERFILE HERE ?!!! ---------- )
 ```
 
-**Solution**: Remove the `WORKDIR` setting to avoid this issue.
+**Solution**: ~~Remove the `WORKDIR` setting to avoid this issue.~~ Simply read the documentation and follow it
 
 ## 2. Docker Tag Name
 
