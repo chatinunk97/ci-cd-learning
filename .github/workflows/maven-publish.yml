@@ -36,13 +36,23 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Print current working directory(After login)
+        run: pwd
+      - name: List files in the working directory
+        run: ls -alh
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
+      - name: Print current working directory(After QEMU)
+        run: pwd
+      - name: List files in the working directory
+        run: ls -alh
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Print current working directory
+      - name: Print current working directory(After Buildx)
         run: pwd
       - name: List files in the working directory
         run: ls -alh
