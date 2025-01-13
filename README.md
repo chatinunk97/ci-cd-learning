@@ -1,64 +1,99 @@
-What I learn is there are two things that made my life hard
+# What I Learn
 
-1. Docker Building context
-    This is where docker looks,when it's building an image it will not look outside the context
-   (which is the same directory the dockerfile is placed) 
-    The problem I faced was setting `WORKDIR` to `/app` first
-    But then try to find `/target/<myProgramName>.jar` which is built by MVN
-    Now the situation looks something like this
-    ```
-    └─CICD_Demo (the Path where MVN looks and built jar in /target)
-        ├─.github
-        │  └─workflows
-        ├─src
-        │  ├─main
-        │  │  ├─java
-        │  │  │  └─org
-        │  │  │      └─example
-        │  │  └─resources
-        │  └─test
-        │      └─java
-        └─target
-            |- [CICD_Demo-1.0-SNAPSHOT.jar](target%2FCICD_Demo-1.0-SNAPSHOT.jar)
-    └─app (the WORKDIR I created in the dockerfile)
-       (--------- THERE'S  NO DOCKERFILE HERE ?!!! ---------- )
-    ```
-    Now that's the problem docker building is looking in the wrong place because I forced it to
-    The solution was just to remove the `WORKDIR`
-2. The tag name has to be the full path to Docker hub 
-    (chatinun/learningdevops:initial)
+There are two things that made my life hard:
 
--- About Java itself
-1. `compiler.source` determines the version of JDK in use
-```dtd
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+## 1. Docker Building Context
+
+Docker looks for files to include in an image within its **building context** (the directory where the Dockerfile is
+located). It will **not look outside** this context.  
+The problem I faced was setting `WORKDIR` to `/app` but then trying to find `/target/<myProgramName>.jar`, which was
+built by Maven in the `/target` folder. The Docker build process was looking in the wrong place because of this
+mismatch.
+
+Example structure:
+
 ```
-2. A JAR file's manifest `MANIFEST.MF`
-```dtd
+└─CICD_Demo (the Path where Maven looks and builds jar in /target)
+    ├─.github
+    │  └─workflows
+    ├─src
+    │  ├─main
+    │  │  ├─java
+    │  │  │  └─org
+    │  │  │      └─example
+    │  │  └─resources
+    │  └─test
+    │      └─java
+    └─target
+        |- [CICD_Demo-1.0-SNAPSHOT.jar](target%2FCICD_Demo-1.0-SNAPSHOT.jar)
+└─app (the WORKDIR I created in the Dockerfile)
+   (--------- THERE'S NO DOCKERFILE HERE ?!!! ---------- )
+```
+
+**Solution**: Remove the `WORKDIR` setting to avoid this issue.
+
+## 2. Docker Tag Name
+
+The tag name for your Docker image must include the full path to your Docker Hub repository, for example:  
+`chatinun/learningdevops:initial`
+
+## 3. Java Compiler Version (`compiler.source`)
+
+The `compiler.source` property in the Maven configuration determines the JDK version to use. For example:
+
+```xml
+
+<properties>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
+```
+
+## 4. JAR File Manifest (`MANIFEST.MF`)
+
+The manifest file in a JAR defines the entry point for the application. The `Main-Class` attribute tells the Java
+runtime which class contains the `main()` method:
+
+```
 Manifest-Version: 1.0
 Main-Class: org.example.Main
 Class-Path: lib/dependency.jar
+```
 
+You can configure this in your `pom.xml`:
+
+```xml
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+                <archive>
+                    <manifestEntries>
+                        <Main-Class>org.example.Main</Main-Class>
+                    </manifestEntries>
+                </archive>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
 ```
-```dtd
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Main-Class>org.example.Main</Main-Class>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-```
-The `Main-Class` attribute simply tells Java runtime which class has the `main()` method and is used as an entry point of the program.
+
+## 5. Don't Leave Your `target` Folder Open
+
+Leaving the `target` folder open when running `mvn clean` can prevent Maven from properly cleaning the directory and
+manipulating the files as needed. Make sure to close it before cleaning the build.
+
+---
+
+### **Note on Java Programs in CI/CD:**
+
+In **CI/CD pipelines** or **Docker environments**, Java programs that require interactive input (e.g., using `Scanner`)
+are not ideal. This is because these environments are **non-interactive**. Instead, consider:
+
+1. Accepting input via **command-line arguments**, **environment variables**, or **files**.
+2. Web applications (e.g., **Spring Boot**) are designed to run as background services and do not need interactive
+   input. They continuously listen for requests and are more suitable for Docker or CI/CD environments.
