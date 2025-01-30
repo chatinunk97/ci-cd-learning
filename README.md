@@ -13,7 +13,7 @@ mismatch.~~
 Went down the wrong road for days. So the building context for `build-push-action` is set to Git context which is the
 repository `https://github.com/<owner>/<repo>.git#<ref>.`
 
-Now the problem that actually happened here is explained in the [build-push-action repository]([www.google.com](https://github.com/docker/build-push-action))
+Now the problem that actually happened here is explained in the [build-push-action repository](https://github.com/docker/build-push-action)
 > Git context
 >
 >By default, this action uses the Git context, so you don't need to use the actions/checkout action to check out the
