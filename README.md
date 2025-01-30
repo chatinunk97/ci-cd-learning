@@ -135,15 +135,6 @@ Once I set `context: .` in the Docker build step, everything worked perfectly.
 - Debugging CI/CD issues can take a lot of trial and error. Keeping logs and systematically eliminating false assumptions is crucial.  
 - Just because something works locally **doesn’t mean it will work in CI/CD**, since the environment behaves differently.  
 
-## Contributing  
-
-We welcome contributions to enhance this project. To contribute:  
-
-1. Fork the repository.  
-2. Create a new branch: `git checkout -b feature-branch-name`  
-3. Make your changes and commit them: `git commit -m 'Add new feature'`  
-4. Push to the branch: `git push origin feature-branch-name`  
-5. Open a pull request detailing your changes.  
 
 ## License  
 
