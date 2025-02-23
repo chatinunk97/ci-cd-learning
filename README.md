@@ -103,6 +103,12 @@ Here's the relevant section of our workflow configuration:
 By setting `context: .`, we instruct Docker to consider the entire working directory—encompassing all modifications and generated artifacts—as the build context. This approach ensures that all necessary files are available during the Docker build process, preventing errors related to missing files.  
 
 ## Mistakes and Lessons Learned  
+### Just read the documentation
+The problem and explanation about context are all stated in the [official documentation](https://github.com/docker/build-push-action)  
+So, take time and carefuly read the doc.
+
+>Be careful because any file mutation in the steps that precede the build step will be ignored, including processing of the .dockerignore file since the context is based on the Git reference. However, you can use the Path context using the context input alongside the actions/checkout action to remove this restriction.
+
 
 ### The Wrong Path I Took  
 
